@@ -1,27 +1,21 @@
-import type { PokemonBasic, Pokemon } from './interfaces/index.ts'
-
-const sectionSetup = () : void => {
-    const sectionRefs = document.querySelectorAll<HTMLElement>('.section');
+const sectionSetup = () => {
+    const sectionRefs = document.querySelectorAll('.section');
     sectionRefs.forEach(section => section.classList.add('d-none'));
-}
-
-const navSetup = () : void => {
-    const navItemRefs = document.querySelectorAll<HTMLUListElement>('.nav-item');
-
+};
+const navSetup = () => {
+    const navItemRefs = document.querySelectorAll('.nav-item');
     navItemRefs.forEach(navItem => {
-        navItem.addEventListener('click', (e : PointerEvent) : void => {
-            console.log((e.target as HTMLElement).dataset.id);
-            toggleSectionDisplay((e.target as HTMLElement).dataset.id);
+        navItem.addEventListener('click', (e) => {
+            console.log(e.target.dataset.id);
+            toggleSectionDisplay(e.target.dataset.id);
         });
     });
-}
-
-const toggleSectionDisplay = (section : string | undefined) : void => {
-    const pokedexSectionRef = document.querySelector('#pokedexSection') as HTMLElement;
-    const searchSectionRef = document.querySelector('#searchSection') as HTMLElement;
-    const generatorSectionRef = document.querySelector('#generatorSection') as HTMLElement;
-
-    switch(section) {
+};
+const toggleSectionDisplay = (section) => {
+    const pokedexSectionRef = document.querySelector('#pokedexSection');
+    const searchSectionRef = document.querySelector('#searchSection');
+    const generatorSectionRef = document.querySelector('#generatorSection');
+    switch (section) {
         case 'pokedex':
             pokedexSectionRef.classList.remove('d-none');
             searchSectionRef.classList.add('d-none');
@@ -40,72 +34,59 @@ const toggleSectionDisplay = (section : string | undefined) : void => {
         default:
             console.log('Någonting gick väldigt, väldigt snett...');
     }
-}
-
-const pokedexSetup = async () : Promise<void> => {
+};
+const pokedexSetup = async () => {
     const pokemonBasicList = await fetchAllPokemons();
-    const pokemonPromises : Promise<Pokemon | null>[] = [];
-
+    const pokemonPromises = [];
     pokemonBasicList.forEach(pokemon => {
         pokemonPromises.push(fetchPokemonDetails(pokemon.url));
     });
-    
     const pokemonList = (await Promise.all(pokemonPromises)).filter(pokemon => pokemon !== null);
     renderPokedex(pokemonList);
-}
-
-const fetchAllPokemons = async () : Promise<PokemonBasic[] | []> => {
-    interface PokemonApiData {
-        results : PokemonBasic[]
-    }
-
+};
+const fetchAllPokemons = async () => {
     try {
-        const response : Response = await fetch('https://pokeapi.co/api/v2/pokemon?limit=151&offset=0');
+        const response = await fetch('https://pokeapi.co/api/v2/pokemon?limit=151&offset=0');
         console.log(response);
-        if(response.ok) {
-            const data : PokemonApiData = await response.json();
+        if (response.ok) {
+            const data = await response.json();
             return data.results;
-        } else {
+        }
+        else {
             throw new Error('Det sket sig...igen');
         }
-        
-    } catch(error) {
+    }
+    catch (error) {
         console.log(error);
         return [];
     }
-}
-
-const fetchPokemonDetails = async (url : string) : Promise<Pokemon | null> => {
+};
+const fetchPokemonDetails = async (url) => {
     try {
-        const response : Response = await fetch(url);
-        if(response.ok) {
-            const data : Pokemon = await response.json();
+        const response = await fetch(url);
+        if (response.ok) {
+            const data = await response.json();
             return data;
-            
-        } else {
+        }
+        else {
             throw new Error('Det sket sig...igen');
         }
-        
-    } catch(error) {
+    }
+    catch (error) {
         console.log(error);
         return null;
     }
-}
-
-const renderPokedex = (pokemons : Pokemon[]) => {
-    const sectionRef = document.querySelector('#pokedexContainer') as HTMLElement;
-
+};
+const renderPokedex = (pokemons) => {
+    const sectionRef = document.querySelector('#pokedexContainer');
     pokemons.forEach(pokemon => {
-        const cardRef : HTMLElement = createCard(pokemon);
+        const cardRef = createCard(pokemon);
         sectionRef.appendChild(cardRef);
     });
-
-}
-
-const createCard = (pokemon : Pokemon) : HTMLElement => {
-    const cardRef : HTMLElement = document.createElement('article'); 
+};
+const createCard = (pokemon) => {
+    const cardRef = document.createElement('article');
     cardRef.classList.add('pokemon-card');
-
     const cardTemplate = `
         <section class="card-top">
             <img src="${pokemon.sprites.front_default}" alt="${pokemon.name} sprite" class="card-sprite">
@@ -115,8 +96,8 @@ const createCard = (pokemon : Pokemon) : HTMLElement => {
             <h2>${capitalizeWords(pokemon.name)}</h2>
             <h3>
                 ${pokemon.types.length === 2
-                    ? capitalizeWords(pokemon.types[0]?.type.name) + ' / ' + capitalizeWords(pokemon.types[1]?.type.name)
-                    : capitalizeWords(pokemon.types[0]?.type.name)}
+        ? capitalizeWords(pokemon.types[0]?.type.name) + ' / ' + capitalizeWords(pokemon.types[1]?.type.name)
+        : capitalizeWords(pokemon.types[0]?.type.name)}
             </h3>
         </section>
         <section class="card-bottom">
@@ -130,24 +111,23 @@ const createCard = (pokemon : Pokemon) : HTMLElement => {
         </section>
     `;
     cardRef.innerHTML = cardTemplate;
-
     return cardRef;
-}
-
-const calculateTotal = (pokemon : Pokemon) : number => {
-    let total : number = 0;
+};
+const calculateTotal = (pokemon) => {
+    let total = 0;
     pokemon.stats.forEach(stat => total += stat.base_stat);
     return total;
-}
-
-const capitalizeWords = (str : string | undefined) => {
-    if(str) {
+};
+const capitalizeWords = (str) => {
+    if (str) {
         return str.replace(/\b\w/g, (match) => match.toUpperCase());
-    } else {
+    }
+    else {
         return '-';
     }
-}
-
+};
 sectionSetup();
 navSetup();
 pokedexSetup();
+export {};
+//# sourceMappingURL=index.js.map
